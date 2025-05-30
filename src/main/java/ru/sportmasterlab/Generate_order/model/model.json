@@ -1,0 +1,15 @@
+{
+  "orderCode": "199",
+  "shopNum":"898",
+
+  "Money": {
+    "currencyCode": "643",
+    "paymentTypeId": "10210299"
+  },
+  "itemList": {
+    "idWare":"152043060299",
+    "QtyOrdered": "1",
+    "price":"101"
+  },
+  "entryPoint":"10140299"
+}

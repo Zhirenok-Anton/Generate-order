@@ -1,16 +1,13 @@
 package ru.sportmasterlab.Generate_order.core.integration;
 
-import io.qameta.allure.Step;
 import ru.sm.qaa.soap.gen.ComProOGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sm.qaa.soap.gen.MarsGate.TCalcSubmit;
 
 import java.math.BigDecimal;
 
-
 public class CreateOrderInComPro extends CreateOrderBase {
 
-    @Step("Создание заказа с товарами в компро")
     public static CreateOrderResponse createOrderWareInComPro(SubmitByLinesResponse submitResponse, String shopNum, String price) {
         CreateOrderRequest createOrderRequest =
                 createComproOrderRequest(submitResponse,shopNum,price);

@@ -7,7 +7,7 @@ import ru.sm.qaa.soap.gen.MarsGate.*;
 import static ru.sportmasterlab.Generate_order.core.integration.CreateOrderBase.*;
 
 public class CreateOrderInMars {
-    //@Step("Создание заказа в МАРС")
+
     public static SubmitByLinesResponse createOrderInMars(String shopNum, String idWare, String price) {
         setTodayDate();
         SubmitByLinesRequest submitRequest = new SubmitByLinesRequest();

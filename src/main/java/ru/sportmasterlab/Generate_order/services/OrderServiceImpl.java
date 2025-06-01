@@ -32,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void createOrder(Long orderCode, String shopNum, String idWare, String price) {
         SubmitByLinesResponse submitResponse = CreateOrderInMars.createOrderInMars(shopNum, idWare, price);
-        orderRepository.insertOrder(orderCode, "NO", "NO", "NO", "NO", "NO");
+        orderRepository.insertOrder(orderCode,"", "NO", "NO", "NO", "NO", "NO");
     }
 
     @Override
@@ -41,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
         SubmitByLinesResponse submitResponse;
         CreatePaymentResponse createPaymentResponse = null;
         Long orderCode = 0L;
+        OrderDto orderDto = null;
 
         submitResponse = CreateOrderInMars.createOrderInMars(
                 request.shopNum(),
@@ -64,7 +65,7 @@ public class OrderServiceImpl implements OrderService {
                     request.itemList().size(),
                     Double.valueOf(request.itemList().get(0).price()));
         }
-        orderRepository.insertOrder(orderCode, "NO", "YES", "NO", "NO", "NO");
+        orderRepository.insertOrder(orderCode,"234234-432432", "NO", "YES", "NO", "NO", "{123,123,123}");
 
         return orderCode;
     }

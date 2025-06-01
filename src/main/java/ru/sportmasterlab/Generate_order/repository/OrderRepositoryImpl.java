@@ -12,18 +12,18 @@ import java.util.Optional;
 public class OrderRepositoryImpl implements OrderRepository {
 
     private static final String SQL_GET_ORDER_BY_CODE =
-            "SELECT order_code, csm_status, mars_status, compro_status, kisrm_status, order_spec \n" +
+            "SELECT order_code, order_num, csm_status, mars_status, compro_status, kisrm_status, order_spec \n" +
             "FROM public.order_status \n" +
             "WHERE order_code= :order_code";
 
     private static final String SQL_INSERT_ORDER = "" +
             "INSERT INTO public.order_status\n" +
-            "(order_code, csm_status, mars_status, compro_status, kisrm_status, order_spec)\n" +
-            "VALUES(:orderCode, :csmStatus, :marsStatus, :comproStatus, :kisrmStatus, :order);";
+            "(order_code, order_num, csm_status, mars_status, compro_status, kisrm_status, order_spec)\n" +
+            "VALUES(:orderCode, :orderNum, :csmStatus, :marsStatus, :comproStatus, :kisrmStatus, :order);";
 
     private static final String SQL_UPDATE_ORDER = "" +
             "UPDATE public.order_status \n" +
-            "SET csm_status = :csmStatus, mars_status = :marsStatus, compro_status = :comproStatus, kisrm_status = :kisrmStatus, order_spec = :order \n" +
+            "SET csm_status = :csmStatus, order_num = :orderNum, mars_status = :marsStatus, compro_status = :comproStatus, kisrm_status = :kisrmStatus, order_spec = :order \n" +
             "WHERE order_code= :orderCode;";
 
     private final OrderMapper orderMapper;
@@ -49,9 +49,10 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void insertOrder(Long orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
+    public void insertOrder(Long orderCode, String orderNum, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
         var params = new MapSqlParameterSource();
         params.addValue("orderCode",orderCode);
+        params.addValue("orderNum",orderNum);
         params.addValue("csmStatus",csmStatus);
         params.addValue("marsStatus", marsStatus);
         params.addValue("comproStatus",comproStatus);

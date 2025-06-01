@@ -2,8 +2,6 @@ package ru.sportmasterlab.Generate_order.services;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticRequest;
-import ru.sm.qaa.soap.gen.ComProCsm.LILogisticInfo;
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
 import ru.sm.qaa.soap.gen.ComProPGate.CreatePaymentResponse;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
@@ -12,8 +10,6 @@ import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInMars;
 import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
 import ru.sportmasterlab.Generate_order.model.OrderDto;
 import ru.sportmasterlab.Generate_order.repository.OrderRepository;
-
-import java.math.BigDecimal;
 
 import static ru.sportmasterlab.Generate_order.core.integration.CreatePayment.*;
 
@@ -28,19 +24,19 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto getorder(String orderCode) {
+    public OrderDto getorder(Long orderCode) {
         return orderRepository.getOrderByCode(orderCode)
                 .orElseThrow(() -> new OrderNotFoundException(orderCode));
     }
 
     @Override
-    public void createOrder(String orderCode, String shopNum, String idWare, String price) {
+    public void createOrder(Long orderCode, String shopNum, String idWare, String price) {
         SubmitByLinesResponse submitResponse = CreateOrderInMars.createOrderInMars(shopNum, idWare, price);
         orderRepository.insertOrder(orderCode, "NO", "NO", "NO", "NO", "NO");
     }
 
     @Override
-    public void createOrder(OrderRequest request) {
+    public Long createOrder(OrderRequest request) {
         CreateOrderResponse createOrderResponse = null;
         SubmitByLinesResponse submitResponse;
         CreatePaymentResponse createPaymentResponse = null;
@@ -68,13 +64,14 @@ public class OrderServiceImpl implements OrderService {
                     request.itemList().size(),
                     Double.valueOf(request.itemList().get(0).price()));
         }
-        orderRepository.insertOrder(request.orderCode(), "NO", "YES", "NO", "NO", "NO");
+        orderRepository.insertOrder(orderCode, "NO", "YES", "NO", "NO", "NO");
+
+        return orderCode;
     }
 
     @Override
-    public void updateOrder(String orderCode, String orderId) {
-        var order = orderRepository.getOrderByCode(orderId).orElseThrow(()->new OrderNotFoundException(orderId));
-        orderRepository.updateOrder(orderCode,"YES", "YES", "YES", "YES", "YES");
+    public void updateOrder(Long orderCode, String orderId) {
+
     }
 
 }

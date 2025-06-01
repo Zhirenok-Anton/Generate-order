@@ -2,9 +2,9 @@ package ru.sportmasterlab.Generate_order.services;
 
 public class OrderNotFoundException extends RuntimeException {
 
-    private final String orderCode;
+    private final Long orderCode;
 
-    public OrderNotFoundException(String orderCode) {
+    public OrderNotFoundException(Long orderCode) {
         this.orderCode = orderCode;
     }
 

@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public interface OrderRepository {
 
-    Optional<OrderDto> getOrderByCode(String orderCode);
-    void insertOrder(String orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order);
-    void updateOrder(String orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order);
+    Optional<OrderDto> getOrderByCode(Long orderCode);
+    void insertOrder(Long orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order);
+    void updateOrder(Long orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order);
     void deleteProfileById(String orderCode);
 }

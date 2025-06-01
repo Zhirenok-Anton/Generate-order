@@ -35,10 +35,10 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public Optional<OrderDto> getOrderByCode(String orderCode) {
+    public Optional<OrderDto> getOrderByCode(Long orderCode) {
         var params = new MapSqlParameterSource();
 
-       params.addValue("order_code", orderCode);
+       params.addValue("order_code", String.valueOf(orderCode));
 
         return jdbcTemplate.query(
                         SQL_GET_ORDER_BY_CODE,
@@ -49,7 +49,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void insertOrder(String orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
+    public void insertOrder(Long orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
         var params = new MapSqlParameterSource();
         params.addValue("orderCode",orderCode);
         params.addValue("csmStatus",csmStatus);
@@ -61,7 +61,7 @@ public class OrderRepositoryImpl implements OrderRepository {
     }
 
     @Override
-    public void updateOrder(String orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
+    public void updateOrder(Long orderCode, String csmStatus, String marsStatus, String comproStatus, String kisrmStatus, String order) {
         var params = new MapSqlParameterSource();
         params.addValue("orderCode",orderCode);
         params.addValue("csmStatus",csmStatus);

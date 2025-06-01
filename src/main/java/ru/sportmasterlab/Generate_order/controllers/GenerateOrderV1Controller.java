@@ -18,26 +18,14 @@ public class GenerateOrderV1Controller {
 
     @GetMapping(value = "/{orderId:\\d+}")
     @ResponseStatus(HttpStatus.OK)
-    public OrderDto getOrder(@PathVariable String orderId){
+    public OrderDto getOrder(@PathVariable Long orderId){
         return orderService.getorder(orderId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderDto createOrder(@Valid @RequestBody OrderRequest request) {
-        orderService.createOrder(request);
-        return orderService.getorder(request.orderCode());
+        Long orderCode = orderService.createOrder(request);
+        return orderService.getorder(orderCode);
     }
-
-
-    @PutMapping(value = "/{orderId:\\d+}")
-    @ResponseStatus(HttpStatus.OK)
-    public OrderDto updateOrder (@Valid @RequestBody OrderRequest request, @PathVariable String orderId){
-        orderService.updateOrder(
-                request.orderCode(),orderId);
-        return orderService.getorder(request.orderCode());
-
-    }
-
-
 }

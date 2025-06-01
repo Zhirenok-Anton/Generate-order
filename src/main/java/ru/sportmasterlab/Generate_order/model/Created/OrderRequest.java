@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 
 public record OrderRequest(
-        @NotNull
-        String orderCode,
         String shopNum,
         Money money,
         ArrayList<ItemList> itemList,

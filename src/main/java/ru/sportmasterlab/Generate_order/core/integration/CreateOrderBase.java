@@ -1,9 +1,6 @@
 package ru.sportmasterlab.Generate_order.core.integration;
 
 import ru.sm.qaa.soap.gen.ComProCsm.ComCsmApiPortType;
-import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticRequest;
-import ru.sm.qaa.soap.gen.ComProCsm.LILogisticDocList;
-import ru.sm.qaa.soap.gen.ComProCsm.LILogisticInfo;
 import ru.sm.qaa.soap.gen.ComProLite.ComLiteApiPortType;
 import ru.sm.qaa.soap.gen.ComProOGate.ComProOGateApiPortType;
 import ru.sm.qaa.soap.gen.ComProPGate.ComPgateApiPortType;

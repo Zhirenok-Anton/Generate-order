@@ -12,7 +12,7 @@ public class OrderMapper implements RowMapper<OrderDto> {
     @Override
     public OrderDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new OrderDto(
-                rs.getString("order_code"),
+                rs.getLong("order_code"),
                 rs.getString("csm_status"),
                 rs.getString("mars_status"),
                 rs.getString("compro_status"),

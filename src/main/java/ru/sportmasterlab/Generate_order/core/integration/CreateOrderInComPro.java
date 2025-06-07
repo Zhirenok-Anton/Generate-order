@@ -1,5 +1,8 @@
 package ru.sportmasterlab.Generate_order.core.integration;
 
+import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticRequest;
+import ru.sm.qaa.soap.gen.ComProCsm.LILogisticDocList;
+import ru.sm.qaa.soap.gen.ComProCsm.LILogisticInfo;
 import ru.sm.qaa.soap.gen.ComProOGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sm.qaa.soap.gen.MarsGate.TCalcSubmit;
@@ -8,11 +11,18 @@ import java.math.BigDecimal;
 
 public class CreateOrderInComPro extends CreateOrderBase {
 
+    public static final String EXECUTE_COM_PRO_RESERVE_CONSIGNEMNT = "CALL COM.COM_UI_ORDER_API.RESERVE_CONSIGNEMNT(?, 1)";
+    public static final String EXECUTE_COM_PRO_CONFIRM_CONSIGNMENT = "CALL COM.COM_UI_ORDER_API.CONFIRM_CONSIGNMENT(?)";
+
     public static CreateOrderResponse createOrderWareInComPro(SubmitByLinesResponse submitResponse, String shopNum, String price) {
         CreateOrderRequest createOrderRequest =
                 createComproOrderRequest(submitResponse,shopNum,price);
 
         return comProOGateApiPortType.createOrder(createOrderRequest);
+    }
+    public static void createGetLogistic(Long orderCode){
+        BigDecimal consignmentCode = getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode();
+        setStatusReserve(orderCode, consignmentCode);
     }
 
     private static CreateOrderRequest createComproOrderRequest(SubmitByLinesResponse submitResponse,String shopNum,String price) {
@@ -115,5 +125,34 @@ public class CreateOrderInComPro extends CreateOrderBase {
 
         createOrderRequest.setOrder(comtogtcoOrder);
         return createOrderRequest;
+    }
+
+
+    public static LILogisticInfo getLogistic(Long orderCode) {
+        GetLogisticRequest getLogisticRequest = new GetLogisticRequest();
+        getLogisticRequest.setOrderCode(BigDecimal.valueOf(orderCode));
+        return comCsmApiPortType.getLogistic(getLogisticRequest).getLogisticInfo();
+    }
+
+    public static void setStatusReserve(Long orderCode, BigDecimal consignmentCode) {
+        OracleDBService jdbi = new OracleDBService();
+        LILogisticInfo liLogisticInfo;
+        BigDecimal logisiticDocState;
+        int logisiticDocStateInt = 1;
+
+        while (logisiticDocStateInt == 1) {
+            jdbi.oneExecute(EXECUTE_COM_PRO_RESERVE_CONSIGNEMNT, consignmentCode);
+            liLogisticInfo = getLogistic(orderCode);
+            LILogisticDocList logisticDocList = liLogisticInfo.getConsignmentList().getConsignment().getFirst()
+                    .getLogisticDocList();
+            if (logisticDocList != null) {
+                logisiticDocState = logisticDocList.getLogisticDocLine().getFirst()
+                        .getState();
+                logisiticDocStateInt = Integer.parseInt(logisiticDocState.toString());
+            }
+        }
+        if (logisiticDocStateInt == 3) {
+            jdbi.oneExecute(EXECUTE_COM_PRO_CONFIRM_CONSIGNMENT, consignmentCode);
+        }
     }
 }

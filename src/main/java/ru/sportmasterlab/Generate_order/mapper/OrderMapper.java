@@ -13,12 +13,7 @@ public class OrderMapper implements RowMapper<OrderDto> {
     public OrderDto mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new OrderDto(
                 rs.getLong("order_code"),
-                rs.getString("order_num"),
-                rs.getString("csm_status"),
-                rs.getString("mars_status"),
-                rs.getString("compro_status"),
-                rs.getString("kisrm_status"),
-                rs.getString("order_spec")
+                rs.getString("order_num")
         );
     }
 }

@@ -1,5 +1,6 @@
 package ru.sportmasterlab.Generate_order.services;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
@@ -7,10 +8,14 @@ import ru.sm.qaa.soap.gen.ComProPGate.CreatePaymentResponse;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro;
 import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInMars;
+import ru.sportmasterlab.Generate_order.core.integration.OracleDBService;
 import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
 import ru.sportmasterlab.Generate_order.model.OrderDto;
 import ru.sportmasterlab.Generate_order.repository.OrderRepository;
 
+import java.math.BigDecimal;
+
+import static ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro.*;
 import static ru.sportmasterlab.Generate_order.core.integration.CreatePayment.*;
 
 @Primary
@@ -37,11 +42,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long createOrder(OrderRequest request) {
+
         CreateOrderResponse createOrderResponse = null;
         SubmitByLinesResponse submitResponse;
         CreatePaymentResponse createPaymentResponse = null;
         Long orderCode = 0L;
-        OrderDto orderDto = null;
 
         submitResponse = CreateOrderInMars.createOrderInMars(
                 request.shopNum(),
@@ -65,7 +70,11 @@ public class OrderServiceImpl implements OrderService {
                     request.itemList().size(),
                     Double.valueOf(request.itemList().get(0).price()));
         }
-        orderRepository.insertOrder(orderCode,"234234-432432", "NO", "YES", "NO", "NO", "{123,123,123}");
+        if (createPaymentResponse.getPaymentCode() != null) {
+            BigDecimal consignmentCode = getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode();
+            setStatusReserve(orderCode, consignmentCode);
+        }
+        orderRepository.insertOrder(orderCode,submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(), "YES", "YES", "YES", "NO", "{123,123,123}");
 
         return orderCode;
     }

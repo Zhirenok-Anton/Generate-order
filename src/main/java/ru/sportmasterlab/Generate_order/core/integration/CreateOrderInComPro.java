@@ -141,6 +141,7 @@ public class CreateOrderInComPro extends CreateOrderBase {
 
         FindClientOrderRequest findClientOrderRequest = new FindClientOrderRequest();
         return comLiteApiPortType.findClientOrder(findClientOrderRequest);
+
     }
 
     public static void setStatusReserve(Long orderCode, BigDecimal consignmentCode) {

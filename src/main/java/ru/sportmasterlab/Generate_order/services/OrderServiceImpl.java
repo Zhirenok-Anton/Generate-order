@@ -35,53 +35,45 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void createOrder(Long orderCode, String shopNum, String idWare, String price) {
-        SubmitByLinesResponse submitResponse = CreateOrderInMars.createOrderInMars(shopNum, idWare, price);
-        orderRepository.insertOrder(orderCode,"", "NO", "NO", "NO", "NO", "NO");
-    }
-
-    @Override
     public Long createOrder(OrderRequest request) {
-
         CreateOrderResponse createOrderResponse = null;
-        SubmitByLinesResponse submitResponse;
+        SubmitByLinesResponse submitResponse= null;
         CreatePaymentResponse createPaymentResponse = null;
         Long orderCode = 0L;
 
-        submitResponse = CreateOrderInMars.createOrderInMars(
-                request.shopNum(),
-                request.itemList().get(0).idWare(),
-                request.itemList().get(0).price());
-        if (submitResponse.getResultCode() != -1) {
-            createOrderResponse = CreateOrderInComPro.createOrderWareInComPro(
-                    submitResponse,
-                    request.shopNum(),
-                    request.itemList().get(0).price());
-            orderCode = createOrderResponse.getOrderCode();
-        }
-        if (orderCode != 0L) {
-            createPaymentResponse = createPaymentResponseByType(
-                    request.shopNum(),
-                    submitResponse,
-                    createOrderResponse,
-                    setBankCardPayment(
-                            request.itemList().size(),
-                            Double.valueOf(request.itemList().get(0).price())),
-                    request.itemList().size(),
-                    Double.valueOf(request.itemList().get(0).price()));
-        }
-        if (createPaymentResponse.getPaymentCode() != null) {
-            BigDecimal consignmentCode = getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode();
-            setStatusReserve(orderCode, consignmentCode);
-        }
+        //вызов MARS для получения номера заказа. Работает плохо! придется просить коллег заводить товары в своей системе
+        //придумать как можно обоуйтись без MARS
+        // от MARS нужно 3 значения: MarsCalcCode, - счетчик внутри марса (14431600)
+        //                           MarsNodeCode - статичное значение  = 100
+        //                           OrderNum - это можно генерировать
+        submitResponse = CreateOrderInMars.createOrderInMars(request);
+
+        //вызов ComPro - для создания заказа
+        createOrderResponse = CreateOrderInComPro.createOrderWareInComPro(request,submitResponse);
+        orderCode = createOrderResponse.getOrderCode();
+
+        //создание платежа
+        createPaymentResponse = createPaymentResponseByType(
+                request,
+                createOrderResponse,
+                setBankCardPayment(
+                        request.itemList().size(),
+                        Double.valueOf(request.itemList().get(0).price())));
+
+        //резервирование заказа в компро
+        setStatusReserve(orderCode, getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode());
+
         orderRepository.insertOrder(orderCode,submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(), "YES", "YES", "YES", "NO", "{123,123,123}");
 
         return orderCode;
+    }
+
+    public static void main(String[] args){
+
     }
 
     @Override
     public void updateOrder(Long orderCode, String orderId) {
 
     }
-
 }

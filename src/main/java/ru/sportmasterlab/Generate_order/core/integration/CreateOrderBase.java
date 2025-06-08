@@ -6,6 +6,7 @@ import ru.sm.qaa.soap.gen.ComProOGate.ComProOGateApiPortType;
 import ru.sm.qaa.soap.gen.ComProPGate.ComPgateApiPortType;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiEndpointService;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiPortType;
+import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -26,15 +27,28 @@ public class CreateOrderBase {
             new ru.sm.qaa.soap.gen.ComProPGate.ServiceApiEndpointService().getServiceApiEndpointPort();
     protected static final ComCsmApiPortType comCsmApiPortType =
             new ru.sm.qaa.soap.gen.ComProCsm.ServiceApiEndpointService().getServiceApiEndpointPort();
-    static Long idWare = 152043060299L;
-    static BigDecimal discountValue = new BigDecimal("100.00");
+    static BigDecimal discountValue = new BigDecimal("0.0");
+
+    static BigDecimal sumToPayWare = new BigDecimal("0.0");
+    static String orderNum;
     static XMLGregorianCalendar TodayDay;
-    static Integer sizeWare = 0;
     static Long IdGateEntryPoint = 10130299L;
 
     //для логирования xml запросов по созданию заказов в компро
     static {
         com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump = true;
+    }
+
+    protected static void setOrderNum(){
+        orderNum =  (int) (Math.random()*1000000)+ "-" + (int) (Math.random()*1000000);
+    }
+    protected static void setOrderNum(String orderNum){
+        CreateOrderBase.orderNum = orderNum;
+    }
+
+    protected static void setDefaultValue(){
+        sumToPayWare = new BigDecimal("0.0");
+        discountValue = new BigDecimal("0.0");
     }
 
     protected static void setTodayDate() {
@@ -44,6 +58,12 @@ public class CreateOrderBase {
             TodayDay = DatatypeFactory.newInstance().newXMLGregorianCalendar(format.format(new Date()));
         } catch (DatatypeConfigurationException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    protected static void setSumToPayWare(OrderRequest request){
+        for (int i = 0; i<request.itemList().size();i++){
+            sumToPayWare = sumToPayWare.add(new BigDecimal(request.itemList().get(i).qtyOrdered()).multiply(new BigDecimal(request.itemList().get(i).price())));
         }
     }
 }

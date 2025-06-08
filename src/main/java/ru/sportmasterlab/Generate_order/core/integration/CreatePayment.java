@@ -4,6 +4,7 @@ import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
 import ru.sm.qaa.soap.gen.ComProPGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sm.qaa.soap.gen.MarsGate.TCalcSubmit;
+import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
 
 
 import java.math.BigDecimal;
@@ -63,6 +64,39 @@ public class CreatePayment extends CreateOrderBase {
 
         return createPaymentRequest;
     }
+
+    public static CreatePaymentResponse createPaymentResponseByType(OrderRequest request, CreateOrderResponse createOrderResponse, CPPayment cpPayment) {
+        CreatePaymentRequest createPaymentRequest = createPaymentRequest(request, createOrderResponse,
+                cpPayment);
+        return comPgateApiPortType.createPayment(createPaymentRequest);
+    }
+
+    public static CreatePaymentRequest createPaymentRequest(OrderRequest request,
+                                                            CreateOrderResponse createOrderResponse,
+                                                            CPPayment cpPayment) {
+
+        CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
+        createPaymentRequest.setEntryPoint(BigDecimal.valueOf(10140299));
+        createPaymentRequest.setSessionId("23545-23434-" + getRandomNumber(7));
+        createPaymentRequest.setShopNum(BigDecimal.valueOf(Long.parseLong(request.shopNum())));
+        createPaymentRequest.setBasketNum("ОП-" + orderNum);
+        createPaymentRequest.setFundDate(TodayDay);
+        createPaymentRequest.setPaymentState(BigDecimal.valueOf(1));
+
+        CPBind cpBind = new CPBind();
+        cpBind.setOrderCode(BigDecimal.valueOf(createOrderResponse.getOrderCode()));
+        cpBind.setKisAvansNum(getRandomNumber(29));
+        cpBind.setBindSum(sumToPayWare);
+
+        createPaymentRequest.setBind(cpBind);
+        createPaymentRequest.setPayment(cpPayment);
+
+        return createPaymentRequest;
+    }
+
+
+
+
 
     /*@Step("Создание платежа ЭПК")
     public static CPPayment setCpGiftCardPayment(int quantity) {
@@ -145,13 +179,7 @@ public class CreatePayment extends CreateOrderBase {
     }*/
 
    // @Step("Оплата заказа БК/Кредитом/ЕПК с заданной ценой")
-    public static CreatePaymentResponse createPaymentResponseByType(String shopNum,
-            SubmitByLinesResponse submitResponse, CreateOrderResponse createOrderResponse,
-            CPPayment cpPayment, int quantity, Double price) {
-        CreatePaymentRequest createPaymentRequest = createPaymentRequest(shopNum, submitResponse, createOrderResponse,
-                cpPayment, quantity, price);
-        return comPgateApiPortType.createPayment(createPaymentRequest);
-    }
+
 
 
     private static String paymentGateIdFrom(String baseId, int length) {

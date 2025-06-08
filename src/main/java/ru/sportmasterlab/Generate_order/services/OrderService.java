@@ -6,7 +6,6 @@ import ru.sportmasterlab.Generate_order.model.OrderDto;
 public interface OrderService {
 
     OrderDto getorder(Long orderCode);
-    void createOrder(Long orderCode, String shopNum, String idWare, String price);
     Long createOrder(OrderRequest request);
     void updateOrder(Long orderCode, String orderId);
 

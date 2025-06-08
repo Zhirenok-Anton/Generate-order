@@ -137,6 +137,12 @@ public class CreateOrderInComPro extends CreateOrderBase {
         return comCsmApiPortType.getLogistic(getLogisticRequest).getLogisticInfo();
     }
 
+    public static FindClientOrderResponse findClientOrderResponse(){
+
+        FindClientOrderRequest findClientOrderRequest = new FindClientOrderRequest();
+        return comLiteApiPortType.findClientOrder(findClientOrderRequest);
+    }
+
     public static void setStatusReserve(Long orderCode, BigDecimal consignmentCode) {
         OracleDBService jdbi = new OracleDBService();
         LILogisticInfo liLogisticInfo;

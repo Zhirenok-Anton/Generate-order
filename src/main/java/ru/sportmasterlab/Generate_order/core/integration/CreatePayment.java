@@ -138,8 +138,6 @@ public class CreatePayment extends CreateOrderBase {
         cpPayment.setPaymentNum(paymentGateIdFrom("29E08ABG3269401JD", 15));
         cpPayment.setPaymentGateId(paymentGateIdFrom("29E08ABG3269401JD", 15));
         cpPayment.setPaymentDate(TodayDay);
-        BigDecimal sumToPayWare = new BigDecimal("0.0").add(
-                BigDecimal.valueOf(price).multiply(BigDecimal.valueOf(quantity)));
         cpPayment.setPaymentSum(sumToPayWare);
         CPBankCard cpBankCard = new CPBankCard();
         cpBankCard.setCardKind(BigDecimal.valueOf(14840299));

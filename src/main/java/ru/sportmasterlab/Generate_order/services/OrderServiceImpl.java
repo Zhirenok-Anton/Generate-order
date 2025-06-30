@@ -36,8 +36,8 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long createOrder(OrderRequest request) {
-        CreateOrderResponse createOrderResponse = null;
-        SubmitByLinesResponse submitResponse= null;
+        CreateOrderResponse createOrderResponse;
+        SubmitByLinesResponse submitResponse;
         CreatePaymentResponse createPaymentResponse = null;
         Long orderCode = 0L;
 
@@ -53,7 +53,7 @@ public class OrderServiceImpl implements OrderService {
         orderCode = createOrderResponse.getOrderCode();
 
         //создание платежа
-        createPaymentResponse = createPaymentResponseByType(
+        createPaymentResponseByType(
                 request,
                 createOrderResponse,
                 setBankCardPayment(
@@ -62,16 +62,19 @@ public class OrderServiceImpl implements OrderService {
 
         //резервирование заказа в компро
         setStatusReserve(orderCode, getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode());
+        int authCode = getComproOrder(request,createOrderResponse).getOrderList().getFindClientOrderItem().getFirst().getAuthCode();
 
-        orderRepository.insertOrder(orderCode,submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(), "YES", "YES", "YES", "NO", "{123,123,123}");
-
+        orderRepository.insertOrder(
+                orderCode,
+                submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(),
+                authCode,
+                "YES", "YES", "YES", "NO", "{123,123,123}");
         return orderCode;
     }
 
     public static void main(String[] args){
 
     }
-
     @Override
     public void updateOrder(Long orderCode, String orderId) {
 

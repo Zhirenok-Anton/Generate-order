@@ -10,6 +10,7 @@ import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class CreateOrderInComPro extends CreateOrderBase {
 
@@ -137,9 +138,11 @@ public class CreateOrderInComPro extends CreateOrderBase {
         return comCsmApiPortType.getLogistic(getLogisticRequest).getLogisticInfo();
     }
 
-    public static FindClientOrderResponse findClientOrderResponse(){
+    public static FindClientOrderResponse getComproOrder(OrderRequest request, CreateOrderResponse createOrderResponse){
 
         FindClientOrderRequest findClientOrderRequest = new FindClientOrderRequest();
+        findClientOrderRequest.setOrderCode(BigInteger.valueOf(createOrderResponse.getOrderCode()));
+        findClientOrderRequest.setShopNum(new BigInteger(request.shopNum()));
         return comLiteApiPortType.findClientOrder(findClientOrderRequest);
 
     }

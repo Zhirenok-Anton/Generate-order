@@ -1,14 +1,20 @@
 {
-  "shopNum":"898",
-
-  "Money": {
+  "shopNum": "898",
+  "money": {
     "currencyCode": "643",
-    "paymentTypeId": "10210299"
+    "paymentTypeId": "10400299"
   },
-  "itemList": {
-    "idWare":"152043060299",
-    "QtyOrdered": "1",
-    "price":"101"
-  },
-  "entryPoint":"10140299"
+  "itemList": [
+    {
+      "idWare": "152043060299",
+      "qtyOrdered": "1",
+      "price": "101"
+    },
+    {
+      "idWare": "152043060299",
+      "qtyOrdered": "1",
+      "price": "100"
+    }
+  ],
+  "entryPoint": "10140299"
 }

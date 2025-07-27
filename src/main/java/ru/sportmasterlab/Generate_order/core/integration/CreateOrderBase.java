@@ -1,12 +1,13 @@
 package ru.sportmasterlab.Generate_order.core.integration;
 
+import com.sun.xml.ws.transport.http.client.HttpTransportPipe;
 import ru.sm.qaa.soap.gen.ComProCsm.ComCsmApiPortType;
 import ru.sm.qaa.soap.gen.ComProLite.ComLiteApiPortType;
 import ru.sm.qaa.soap.gen.ComProOGate.ComProOGateApiPortType;
 import ru.sm.qaa.soap.gen.ComProPGate.ComPgateApiPortType;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiEndpointService;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiPortType;
-import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -36,7 +37,7 @@ public class CreateOrderBase {
 
     //для логирования xml запросов по созданию заказов в компро
     static {
-        com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump = true;
+        HttpTransportPipe.dump = true;
     }
 
     protected static void setOrderNum(){
@@ -46,6 +47,7 @@ public class CreateOrderBase {
         CreateOrderBase.orderNum = orderNum;
     }
 
+    //TODO: похоже что уже бесполезный метод
     protected static void setDefaultValue(){
         sumToPayWare = new BigDecimal("0.0");
         discountValue = new BigDecimal("0.0");
@@ -62,7 +64,7 @@ public class CreateOrderBase {
     }
 
     protected static void setSumToPayWare(OrderRequest request){
-        for (int i = 0; i<request.itemList().size();i++){
+        for (int i = 0; i<request.itemList().size(); i++){
             sumToPayWare = sumToPayWare.add(new BigDecimal(request.itemList().get(i).qtyOrdered()).multiply(new BigDecimal(request.itemList().get(i).price())));
         }
     }

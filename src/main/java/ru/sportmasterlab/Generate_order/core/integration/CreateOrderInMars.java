@@ -3,9 +3,7 @@ package ru.sportmasterlab.Generate_order.core.integration;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 
 import ru.sm.qaa.soap.gen.MarsGate.*;
-import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
-
-import static ru.sportmasterlab.Generate_order.core.integration.CreateOrderBase.*;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
 public class CreateOrderInMars extends CreateOrderBase{
 
@@ -18,7 +16,7 @@ public class CreateOrderInMars extends CreateOrderBase{
         tGateOrder.setOrderTypeMnemocode("internal_pickup");
 
         TOrderItemLineList tGateOrderItemList = new TOrderItemLineList();
-        for (int i =0;i<request.itemList().size();i++){
+        for (int i = 0; i<request.itemList().size(); i++){
             for (int j = 0; j < Integer.parseInt(request.itemList().get(i).qtyOrdered()); j++){
                 TOrderItemLine tGateOrderItem = new TOrderItemLine();
                 tGateOrderItem.setPrice(Double.parseDouble(request.itemList().get(i).price()));

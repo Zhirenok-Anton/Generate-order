@@ -4,7 +4,7 @@ import org.jdbi.v3.core.Jdbi;
 
 import java.math.BigDecimal;
 
-public class OracleDBService {
+public class OracleDBCompro {
     private final static Jdbi jdbiComPro = Jdbi.create("jdbc:oracle:thin:com_exe/com_exe@//ex8td-scan.gksm.local:1521/sks_etalon_compro_ru");
 
     //Вызвать процедуру c условиями

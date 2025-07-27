@@ -1,19 +1,14 @@
 package ru.sportmasterlab.Generate_order.services;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
-import ru.sm.qaa.soap.gen.ComProPGate.CreatePaymentResponse;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro;
 import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInMars;
-import ru.sportmasterlab.Generate_order.core.integration.OracleDBService;
-import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
-import ru.sportmasterlab.Generate_order.model.OrderDto;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.OrderDto;
 import ru.sportmasterlab.Generate_order.repository.OrderRepository;
-
-import java.math.BigDecimal;
 
 import static ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro.*;
 import static ru.sportmasterlab.Generate_order.core.integration.CreatePayment.*;
@@ -36,16 +31,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long createOrder(OrderRequest request) {
-        CreateOrderResponse createOrderResponse;
-        SubmitByLinesResponse submitResponse;
-        CreatePaymentResponse createPaymentResponse = null;
+        CreateOrderResponse createOrderResponse= null;
+        SubmitByLinesResponse submitResponse = null;
         Long orderCode = 0L;
 
-        //вызов MARS для получения номера заказа. Работает плохо! придется просить коллег заводить товары в своей системе
+        //TODO:вызов MARS для получения номера заказа. Работает плохо! придется просить коллег заводить товары в своей системе
         //придумать как можно обоуйтись без MARS
-        // от MARS нужно 3 значения: MarsCalcCode, - счетчик внутри марса (14431600)
+        // от MARS нужно 3 значения: MarsCalcCode, - счетчик внутри марса (пример 14431600)
         //                           MarsNodeCode - статичное значение  = 100
-        //                           OrderNum - это можно генерировать
+        //                           OrderNum - возможно это можно генерировать  самостоятельно (пример 123456-123456)
         submitResponse = CreateOrderInMars.createOrderInMars(request);
 
         //вызов ComPro - для создания заказа
@@ -53,30 +47,19 @@ public class OrderServiceImpl implements OrderService {
         orderCode = createOrderResponse.getOrderCode();
 
         //создание платежа
-        createPaymentResponseByType(
-                request,
-                createOrderResponse,
-                setBankCardPayment(
-                        request.itemList().size(),
-                        Double.valueOf(request.itemList().get(0).price())));
+        createPaymentResponseByType(request, createOrderResponse);
 
         //резервирование заказа в компро
         setStatusReserve(orderCode, getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode());
-        int authCode = getComproOrder(request,createOrderResponse).getOrderList().getFindClientOrderItem().getFirst().getAuthCode();
-
+        int authCode = 0;
+        if(!request.money().paymentType().equals("IN_SHOP")) {
+            authCode = getComproOrder(request, createOrderResponse).getOrderList().getFindClientOrderItem().getFirst().getAuthCode();
+        }
         orderRepository.insertOrder(
                 orderCode,
                 submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(),
                 authCode,
-                "YES", "YES", "YES", "NO", "{123,123,123}");
+                "YES", "YES", "YES", "NO", request.toString());
         return orderCode;
-    }
-
-    public static void main(String[] args){
-
-    }
-    @Override
-    public void updateOrder(Long orderCode, String orderId) {
-
     }
 }

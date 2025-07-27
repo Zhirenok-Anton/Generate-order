@@ -2,7 +2,7 @@ package ru.sportmasterlab.Generate_order.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import ru.sportmasterlab.Generate_order.model.OrderDto;
+import ru.sportmasterlab.Generate_order.model.order.OrderDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

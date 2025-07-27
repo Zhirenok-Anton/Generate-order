@@ -3,8 +3,8 @@ package ru.sportmasterlab.Generate_order.controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.sportmasterlab.Generate_order.model.OrderDto;
-import ru.sportmasterlab.Generate_order.model.Created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.OrderDto;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 import ru.sportmasterlab.Generate_order.services.OrderService;
 
 @RestController

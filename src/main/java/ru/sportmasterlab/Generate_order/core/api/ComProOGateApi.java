@@ -1,36 +1,22 @@
-package ru.sportmasterlab.Generate_order.core.integration;
+package ru.sportmasterlab.Generate_order.core.api;
 
-import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticRequest;
-import ru.sm.qaa.soap.gen.ComProCsm.LILogisticDocList;
-import ru.sm.qaa.soap.gen.ComProCsm.LILogisticInfo;
-import ru.sm.qaa.soap.gen.ComProLite.FindClientOrderRequest;
-import ru.sm.qaa.soap.gen.ComProLite.FindClientOrderResponse;
 import ru.sm.qaa.soap.gen.ComProOGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
-import ru.sportmasterlab.Generate_order.core.directory.Directory;
-import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
 import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
-public class CreateOrderInComPro extends CreateOrderBase {
+public class ComProOGateApi extends CreateOrderBase {
 
-    public static final String EXECUTE_COM_PRO_RESERVE_CONSIGNEMNT = "CALL COM.COM_UI_ORDER_API.RESERVE_CONSIGNEMNT(?, 1)";
-    public static final String EXECUTE_COM_PRO_CONFIRM_CONSIGNMENT = "CALL COM.COM_UI_ORDER_API.CONFIRM_CONSIGNMENT(?)";
-
-    public static CreateOrderResponse createOrderWareInComPro(OrderRequest request, SubmitByLinesResponse submitResponse) {
+    public static CreateOrderResponse getCreateOrderComProResponse(OrderRequest request, SubmitByLinesResponse submitResponse) {
         setOrderNum(submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum());
-        CreateOrderRequest createOrderRequest =
-                createComproOrderRequest(request,submitResponse);
-        return comProOGateApiPortType.createOrder(createOrderRequest);
+        CreateOrderRequest createOrderRequestComPro =
+                createOrderRequest(request,submitResponse);
+        return comProOGateApiPortType.createOrder(createOrderRequestComPro);
     }
 
-    private static CreateOrderRequest createComproOrderRequest(OrderRequest request, SubmitByLinesResponse submitResponse) {
+    private static CreateOrderRequest createOrderRequest(OrderRequest request, SubmitByLinesResponse submitResponse) {
         setTodayDate();
-
-        //TODO: ОБЯЗАТЕЛЬНО УБРАТЬ КОСТЫЛЬ
-        sumToPayWare = getSumToPayWare(request);
 
         CreateOrderRequest createOrderRequest = new CreateOrderRequest();
 
@@ -54,11 +40,12 @@ public class CreateOrderInComPro extends CreateOrderBase {
         comtogtcomoney.setPrepay(BigDecimal.valueOf(0));//хардкод
         comtogtcomoney.setToPay(getSumToPayWare(request));
         comtogtcomoney.setDiscountTotal(getDiscountTotal(request));
-        comtogtcomoney.setBonusTotal(getBonusTotal(request));
+        comtogtcomoney.setBonusTotal(getBonusTotal());
         comtogtcomoney.setPayType(1);//хардкод
         comtogtcomoney.setPaymentTypeId(getPaymentTypeId(request));
 
         comtogtcoOrder.setMoney(comtogtcomoney);
+        if (getCreditProductId(request)!= null) comtogtcoOrder.setCreditProductId(getCreditProductId(request));
         comtogtcoOrder.setMacrocity(11080299L);
         comtogtcoOrder.setClubCardOwnerRegCode(100000000627266576L);//хардкод
         comtogtcoOrder.setUseBonus(true);//хардкод
@@ -96,6 +83,18 @@ public class CreateOrderInComPro extends CreateOrderBase {
 
         //добавляем товары
         COMTOGTCOLINET comtogtcolinetList = new COMTOGTCOLINET();
+        //int i = 0;
+       /* for (ItemList item : request.itemList()) {
+
+            COMTOGTCOLINE comtogtcoline = new COMTOGTCOLINE();
+            comtogtcoline.setIdWare(Long.valueOf(item.idWare()));
+            comtogtcoline.setWareMark((long) i+++100);
+            comtogtcoline.setQtyOrdered(Integer.parseInt(item.qtyOrdered()));
+            comtogtcoline.setCatalogPrice(new BigDecimal(item.price()));
+            comtogtcoline.setPrice(new BigDecimal(item.price()).subtract(getDiscountTotalWare(item)));
+            comtogtcoline.setToPay(new BigDecimal(item.price()).subtract(getDiscountTotalWare(item)));
+            comtogtcoline.setDiscountTotal(getDiscountTotalWare(request.itemList().get(i)));
+        }*/
         for (int i = 0; i < request.itemList().size(); i++) {
             COMTOGTCOLINE comtogtcoline = new COMTOGTCOLINE();
             comtogtcoline.setIdWare(Long.valueOf(request.itemList().get(i).idWare()));
@@ -135,111 +134,5 @@ public class CreateOrderInComPro extends CreateOrderBase {
 
         createOrderRequest.setOrder(comtogtcoOrder);
         return createOrderRequest;
-    }
-
-    public static LILogisticInfo getLogistic(Long orderCode) {
-        GetLogisticRequest getLogisticRequest = new GetLogisticRequest();
-        getLogisticRequest.setOrderCode(BigDecimal.valueOf(orderCode));
-        return comCsmApiPortType.getLogistic(getLogisticRequest).getLogisticInfo();
-    }
-
-    public static FindClientOrderResponse getComproOrder(OrderRequest request, CreateOrderResponse createOrderResponse){
-
-        FindClientOrderRequest findClientOrderRequest = new FindClientOrderRequest();
-        findClientOrderRequest.setOrderCode(BigInteger.valueOf(createOrderResponse.getOrderCode()));
-        findClientOrderRequest.setShopNum(new BigInteger(request.shopNum()));
-        return comLiteApiPortType.findClientOrder(findClientOrderRequest);
-    }
-
-    public static void setStatusReserve(Long orderCode, BigDecimal consignmentCode) {
-        OracleDBCompro jdbi = new OracleDBCompro();
-        LILogisticInfo liLogisticInfo;
-        BigDecimal logisiticDocState;
-        int logisiticDocStateInt = 1;
-
-        while (logisiticDocStateInt == 1) {
-            jdbi.oneExecute(EXECUTE_COM_PRO_RESERVE_CONSIGNEMNT, consignmentCode);
-            liLogisticInfo = getLogistic(orderCode);
-            LILogisticDocList logisticDocList = liLogisticInfo.getConsignmentList().getConsignment().getFirst()
-                    .getLogisticDocList();
-            if (logisticDocList != null) {
-                logisiticDocState = logisticDocList.getLogisticDocLine().getFirst()
-                        .getState();
-                logisiticDocStateInt = Integer.parseInt(logisiticDocState.toString());
-            }
-        }
-        if (logisiticDocStateInt == 3) {
-            jdbi.oneExecute(EXECUTE_COM_PRO_CONFIRM_CONSIGNMENT, consignmentCode);
-        }
-    }
-
-    private static Long getPaymentTypeId(OrderRequest request){
-        Long paymentTypeId= null;
-        for (int i = 0;i<Directory.paymentsDirectory.size();i++) {
-            if(request.money().paymentType().equals(Directory.paymentsDirectory.get(i).code())){
-                paymentTypeId = Long.valueOf(Directory.paymentsDirectory.get(i).idPaymentType());
-            }
-        }
-        return paymentTypeId;
-    }
-
-    private static String getCurrencyCode(OrderRequest request){
-        String currencyCode = null;
-        for (int i = 0;i<Directory.currencyDirectory.size();i++) {
-            if(request.money().currencyCode().equals(Directory.currencyDirectory.get(i).currencyType())){
-                currencyCode = String.valueOf(Long.valueOf(Directory.currencyDirectory.get(i).currencyCode()));
-            }
-        }
-        return currencyCode;
-    }
-
-    private static BigDecimal getSumToPayWare(OrderRequest request){
-        BigDecimal sumToPayWare = BigDecimal.valueOf(0);
-        for (int i = 0; i<request.itemList().size(); i++){
-            BigDecimal sumDiscountWare = BigDecimal.valueOf(0);
-            if (request.itemList().get(i).discountList()!= null) {
-                for (int j = 0; j < request.itemList().get(i).discountList().size(); j++) {
-                    if (request.itemList().get(i).discountList().get(j).type().equals("1")) {
-                        sumDiscountWare = sumDiscountWare.add(new BigDecimal(request.itemList().get(i).discountList().get(j).value()));
-                    }
-                }
-            }
-            //sum = ( price - discount ) * qtyOrdered
-            sumToPayWare = sumToPayWare.add(
-                    (new BigDecimal(request.itemList().get(i).price())
-                            .multiply(new BigDecimal(request.itemList().get(i).qtyOrdered()))
-                            .subtract(sumDiscountWare)));
-        }
-        return sumToPayWare;
-    }
-
-    private static BigDecimal getDiscountTotal(OrderRequest request){
-        BigDecimal sumDiscount = BigDecimal.valueOf(0);
-        for (int i = 0; i<request.itemList().size(); i++){
-            if (request.itemList().get(i).discountList()!= null){
-                for (int j = 0; j < request.itemList().get(i).discountList().size(); j++) {
-                    if(request.itemList().get(i).discountList().get(j).type().equals("1")){
-                        sumDiscount = sumDiscount.add(new BigDecimal(request.itemList().get(i).discountList().get(j).value()));
-                    }
-                }
-            }
-        }
-        return sumDiscount;
-    }
-
-    private static BigDecimal getDiscountTotalWare(ItemList item){
-        BigDecimal sumDiscountWare = BigDecimal.valueOf(0);
-        if (item.discountList()!= null) {
-            for (int i = 0; i < item.discountList().size(); i++) {
-                if (item.discountList().get(i).type().equals("1")) {
-                    sumDiscountWare = sumDiscountWare.add(new BigDecimal(item.discountList().get(i).value()));
-                }
-            }
-        }
-        return sumDiscountWare;
-    }
-
-    private static BigDecimal getBonusTotal(OrderRequest request){
-        return BigDecimal.valueOf(0);
     }
 }

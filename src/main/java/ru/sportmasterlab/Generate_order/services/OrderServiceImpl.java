@@ -4,14 +4,15 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
-import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro;
-import ru.sportmasterlab.Generate_order.core.integration.CreateOrderInMars;
+import ru.sportmasterlab.Generate_order.core.api.ComProOGateApi;
+import ru.sportmasterlab.Generate_order.core.api.MarsGateApi;
 import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 import ru.sportmasterlab.Generate_order.model.order.OrderDto;
 import ru.sportmasterlab.Generate_order.repository.OrderRepository;
 
-import static ru.sportmasterlab.Generate_order.core.integration.CreateOrderInComPro.*;
-import static ru.sportmasterlab.Generate_order.core.integration.CreatePayment.*;
+import static ru.sportmasterlab.Generate_order.core.api.ComPgateApi.*;
+import static ru.sportmasterlab.Generate_order.core.api.ComLiteApi.*;
+import static ru.sportmasterlab.Generate_order.core.api.ComCsmApi.*;
 
 @Primary
 @Service
@@ -31,7 +32,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Long createOrder(OrderRequest request) {
-        CreateOrderResponse createOrderResponse= null;
+        CreateOrderResponse createOrderComProResponse= null;
         SubmitByLinesResponse submitResponse = null;
         Long orderCode = 0L;
 
@@ -40,20 +41,20 @@ public class OrderServiceImpl implements OrderService {
         // от MARS нужно 3 значения: MarsCalcCode, - счетчик внутри марса (пример 14431600)
         //                           MarsNodeCode - статичное значение  = 100
         //                           OrderNum - возможно это можно генерировать  самостоятельно (пример 123456-123456)
-        submitResponse = CreateOrderInMars.createOrderInMars(request);
+        submitResponse = MarsGateApi.createOrderInMars(request);
 
         //вызов ComPro - для создания заказа
-        createOrderResponse = CreateOrderInComPro.createOrderWareInComPro(request,submitResponse);
-        orderCode = createOrderResponse.getOrderCode();
+        createOrderComProResponse = ComProOGateApi.getCreateOrderComProResponse(request,submitResponse);
+        orderCode = createOrderComProResponse.getOrderCode();
 
         //создание платежа
-        createPaymentResponseByType(request, createOrderResponse);
+        getCreatePaymentResponse(request, createOrderComProResponse);
 
         //резервирование заказа в компро
-        setStatusReserve(orderCode, getLogistic(orderCode).getConsignmentList().getConsignment().getFirst().getCode());
+        setStatusReserve(orderCode, getGetLogisticResponse(orderCode).getLogisticInfo().getConsignmentList().getConsignment().getFirst().getCode());
         int authCode = 0;
         if(!request.money().paymentType().equals("IN_SHOP")) {
-            authCode = getComproOrder(request, createOrderResponse).getOrderList().getFindClientOrderItem().getFirst().getAuthCode();
+            authCode = getFindClientOrderResponse(request, createOrderComProResponse).getOrderList().getFindClientOrderItem().getFirst().getAuthCode();
         }
         orderRepository.insertOrder(
                 orderCode,

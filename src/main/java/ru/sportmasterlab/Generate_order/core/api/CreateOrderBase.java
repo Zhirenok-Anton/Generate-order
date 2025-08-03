@@ -8,6 +8,9 @@ import ru.sm.qaa.soap.gen.ComProPGate.ComPgateApiPortType;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiEndpointService;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiPortType;
 import ru.sportmasterlab.Generate_order.core.directory.Directory;
+import ru.sportmasterlab.Generate_order.model.dataBase.CurrencyDto;
+import ru.sportmasterlab.Generate_order.model.dataBase.PaymentsDto;
+import ru.sportmasterlab.Generate_order.model.order.created.DiscountList;
 import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
 import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
@@ -56,9 +59,9 @@ public class CreateOrderBase {
 
     protected static Long getPaymentTypeId(OrderRequest request){
         Long paymentTypeId= null;
-        for (int i = 0; i< Directory.paymentsDirectory.size(); i++) {
-            if(request.money().paymentType().equals(Directory.paymentsDirectory.get(i).code())){
-                paymentTypeId = Long.valueOf(Directory.paymentsDirectory.get(i).idPaymentType());
+        for (PaymentsDto payment : Directory.paymentsDirectory){
+            if(request.money().paymentType().equals(payment.code())){
+                paymentTypeId = Long.valueOf(payment.idPaymentType());
             }
         }
         return paymentTypeId;
@@ -66,9 +69,9 @@ public class CreateOrderBase {
 
     protected static String getCurrencyCode(OrderRequest request){
         String currencyCode = null;
-        for (int i = 0;i<Directory.currencyDirectory.size();i++) {
-            if(request.money().currencyCode().equals(Directory.currencyDirectory.get(i).currencyType())){
-                currencyCode = String.valueOf(Long.valueOf(Directory.currencyDirectory.get(i).currencyCode()));
+        for (CurrencyDto currency : Directory.currencyDirectory){
+            if(request.money().currencyCode().equals(currency.currencyType())){
+                currencyCode = String.valueOf(Long.valueOf(currency.currencyCode()));
             }
         }
         return currencyCode;
@@ -76,31 +79,28 @@ public class CreateOrderBase {
 
     protected static BigDecimal getSumToPayWare(OrderRequest request){
         BigDecimal sumToPayWare = BigDecimal.valueOf(0);
-        for (int i = 0; i<request.itemList().size(); i++){
+        for(ItemList item: request.itemList()){
             BigDecimal sumDiscountWare = BigDecimal.valueOf(0);
-            if (request.itemList().get(i).discountList()!= null) {
-                for (int j = 0; j < request.itemList().get(i).discountList().size(); j++) {
-                    if (request.itemList().get(i).discountList().get(j).type().equals("1")) {
-                        sumDiscountWare = sumDiscountWare.add(new BigDecimal(request.itemList().get(i).discountList().get(j).value()));
+            if (item.discountList()!= null) {
+                for(DiscountList discount: item.discountList()){
+                    if (discount.type().equals("1")) {
+                        sumDiscountWare = sumDiscountWare.add(new BigDecimal(discount.value()));
                     }
                 }
             }
             //sum = ( price - discount ) * qtyOrdered
-            sumToPayWare = sumToPayWare.add(
-                    (new BigDecimal(request.itemList().get(i).price())
-                            .multiply(new BigDecimal(request.itemList().get(i).qtyOrdered()))
-                            .subtract(sumDiscountWare)));
+            sumToPayWare = sumToPayWare.add(new BigDecimal(item.price()).subtract(sumDiscountWare).multiply(new BigDecimal(item.qtyOrdered())));
         }
         return sumToPayWare;
     }
 
     protected static BigDecimal getDiscountTotal(OrderRequest request){
         BigDecimal sumDiscount = BigDecimal.valueOf(0);
-        for (int i = 0; i<request.itemList().size(); i++){
-            if (request.itemList().get(i).discountList()!= null){
-                for (int j = 0; j < request.itemList().get(i).discountList().size(); j++) {
-                    if(request.itemList().get(i).discountList().get(j).type().equals("1")){
-                        sumDiscount = sumDiscount.add(new BigDecimal(request.itemList().get(i).discountList().get(j).value()));
+        for(ItemList item: request.itemList()){
+            if (item.discountList()!= null){
+                for(DiscountList discount: item.discountList()){
+                    if(discount.type().equals("1")){
+                        sumDiscount = sumDiscount.add(new BigDecimal(discount.value()));
                     }
                 }
             }
@@ -111,9 +111,9 @@ public class CreateOrderBase {
     protected static BigDecimal getDiscountTotalWare(ItemList item){
         BigDecimal sumDiscountWare = BigDecimal.valueOf(0);
         if (item.discountList()!= null) {
-            for (int i = 0; i < item.discountList().size(); i++) {
-                if (item.discountList().get(i).type().equals("1")) {
-                    sumDiscountWare = sumDiscountWare.add(new BigDecimal(item.discountList().get(i).value()));
+            for(DiscountList discount: item.discountList()){
+                if (discount.type().equals("1")) {
+                    sumDiscountWare = sumDiscountWare.add(new BigDecimal(discount.value()));
                 }
             }
         }
@@ -122,9 +122,9 @@ public class CreateOrderBase {
 
     protected static Long getCreditProductId(OrderRequest request){
         Long creditProductId = null;
-        for (int i = 0; i< Directory.paymentsDirectory.size(); i++) {
-            if(request.money().paymentType().equals(Directory.paymentsDirectory.get(i).code()) && Directory.paymentsDirectory.get(i).idCreditProduct()!=null){
-                creditProductId = Long.parseLong(Directory.paymentsDirectory.get(i).idCreditProduct());
+        for (PaymentsDto payment : Directory.paymentsDirectory){
+            if(request.money().paymentType().equals(payment.code()) && payment.idCreditProduct()!=null){
+                creditProductId = Long.parseLong(payment.idCreditProduct());
             }
         }
         return creditProductId;

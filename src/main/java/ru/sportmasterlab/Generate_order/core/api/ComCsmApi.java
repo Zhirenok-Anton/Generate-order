@@ -23,16 +23,16 @@ public class ComCsmApi extends CreateOrderBase{
         return getLogisticRequest;
     }
 
-    //TODO: возможно стоит вынести логику из этого класса
+    //TODO: возможно стоит вынести логику из этого класса и написать нормально
     public static void setStatusReserve(Long orderCode, BigDecimal consignmentCode) {
         OracleDBCompro jdbi = new OracleDBCompro();
         LILogisticInfo liLogisticInfo;
         BigDecimal logisiticDocState;
-        int logisiticDocStateInt = 1;
+        int logisiticDocStateInt = 1;//TODO: нужно брать значение из getGetLogisticResponse().getLogisticInfo().getConsignmentList().getConsignment().getFirst().getLogisticDocList().getLogisticDocLine().getFirst().getState()
 
         while (logisiticDocStateInt == 1) {
             jdbi.oneExecute(EXECUTE_COM_PRO_RESERVE_CONSIGNEMNT, consignmentCode);
-            liLogisticInfo = getGetLogisticResponse(orderCode).getLogisticInfo();
+            liLogisticInfo = getGetLogisticResponse(orderCode).getLogisticInfo();//TODO: как будто лишний вызов, так как уже есть ответ этого запроса
             LILogisticDocList logisticDocList = liLogisticInfo.getConsignmentList().getConsignment().getFirst()
                     .getLogisticDocList();
             if (logisticDocList != null) {

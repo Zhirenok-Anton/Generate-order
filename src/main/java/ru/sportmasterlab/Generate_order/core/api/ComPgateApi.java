@@ -21,8 +21,7 @@ public class ComPgateApi extends CreateOrderBase {
         return comPgateApiPortType.createPayment(createPaymentRequest);
     }
 
-     private static CreatePaymentRequest сreatePaymentRequest(OrderRequest request,
-                                                               CreateOrderResponse createOrderResponse) {
+     private static CreatePaymentRequest сreatePaymentRequest(OrderRequest request, CreateOrderResponse createOrderResponse) {
         CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
         createPaymentRequest.setEntryPoint(BigDecimal.valueOf(10140299));
         createPaymentRequest.setSessionId("23545-23434-" + getRandomNumber(7));

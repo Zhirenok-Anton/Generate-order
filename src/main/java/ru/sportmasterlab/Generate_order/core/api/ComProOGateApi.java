@@ -2,6 +2,8 @@ package ru.sportmasterlab.Generate_order.core.api;
 
 import ru.sm.qaa.soap.gen.ComProOGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
+import ru.sportmasterlab.Generate_order.model.order.created.DiscountList;
+import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
 import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
 import java.math.BigDecimal;
@@ -83,9 +85,8 @@ public class ComProOGateApi extends CreateOrderBase {
 
         //добавляем товары
         COMTOGTCOLINET comtogtcolinetList = new COMTOGTCOLINET();
-        //int i = 0;
-       /* for (ItemList item : request.itemList()) {
-
+        int i = 0;
+        for (ItemList item : request.itemList()) {
             COMTOGTCOLINE comtogtcoline = new COMTOGTCOLINE();
             comtogtcoline.setIdWare(Long.valueOf(item.idWare()));
             comtogtcoline.setWareMark((long) i+++100);
@@ -93,33 +94,23 @@ public class ComProOGateApi extends CreateOrderBase {
             comtogtcoline.setCatalogPrice(new BigDecimal(item.price()));
             comtogtcoline.setPrice(new BigDecimal(item.price()).subtract(getDiscountTotalWare(item)));
             comtogtcoline.setToPay(new BigDecimal(item.price()).subtract(getDiscountTotalWare(item)));
-            comtogtcoline.setDiscountTotal(getDiscountTotalWare(request.itemList().get(i)));
-        }*/
-        for (int i = 0; i < request.itemList().size(); i++) {
-            COMTOGTCOLINE comtogtcoline = new COMTOGTCOLINE();
-            comtogtcoline.setIdWare(Long.valueOf(request.itemList().get(i).idWare()));
-            comtogtcoline.setWareMark((long) i + 100);
-            comtogtcoline.setQtyOrdered(Integer.parseInt(request.itemList().get(i).qtyOrdered()));
-            comtogtcoline.setCatalogPrice(new BigDecimal(request.itemList().get(i).price()));
-            comtogtcoline.setPrice(new BigDecimal(request.itemList().get(i).price()).subtract(getDiscountTotalWare(request.itemList().get(i)).divide(BigDecimal.valueOf(Long.parseLong(request.itemList().get(i).qtyOrdered())))));// comtogtcoline.setPrice(new BigDecimal(request.itemList().get(i).price()).subtract(getDiscountTotalWare(request.itemList().get(i))));
-            comtogtcoline.setToPay((new BigDecimal(request.itemList().get(i).price()).multiply(BigDecimal.valueOf(Long.parseLong(request.itemList().get(i).qtyOrdered())))).subtract(getDiscountTotalWare(request.itemList().get(i))));//comtogtcoline.setToPay(new BigDecimal(request.itemList().get(i).price()).subtract(getDiscountTotalWare(request.itemList().get(i))));
-            comtogtcoline.setDiscountTotal(getDiscountTotalWare(request.itemList().get(i)));
-
-            if (request.itemList().get(i).discountList()!=null) {
+            comtogtcoline.setDiscountTotal(getDiscountTotalWare(item));
+            if (item.discountList()!=null) {
                 COMTOGTCOAPPLIEDDISCOUNTT comtogtcoapplieddiscountList = new COMTOGTCOAPPLIEDDISCOUNTT();
-                for (int j = 0; j < request.itemList().get(i).discountList().size(); j++) {
+                for(DiscountList discount : item.discountList()){
                     COMTOGTCOAPPLIEDDISCOUNT comtogtcoapplieddiscountLine = new COMTOGTCOAPPLIEDDISCOUNT();
-                    comtogtcoapplieddiscountLine.setId(Long.parseLong(request.itemList().get(i).discountList().get(j).id()));
-                    comtogtcoapplieddiscountLine.setType(Integer.parseInt(request.itemList().get(i).discountList().get(j).type()));
-                    comtogtcoapplieddiscountLine.setValue(new BigDecimal(request.itemList().get(i).discountList().get(j).value()));
+                    comtogtcoapplieddiscountLine.setId(Long.parseLong(discount.id()));
+                    comtogtcoapplieddiscountLine.setType(Integer.parseInt(discount.type()));
+                    comtogtcoapplieddiscountLine.setValue(new BigDecimal(discount.value()));
                     comtogtcoapplieddiscountList.getAppliedDiscount().add(comtogtcoapplieddiscountLine);
                 }
                 comtogtcoline.setAppliedDiscountList(comtogtcoapplieddiscountList);
             }
             comtogtcolinetList.getLine().add(comtogtcoline);
         }
+
         comtogtcoOrder.setLineList(comtogtcolinetList);
-        comtogtcoOrder.setEntryPoint(10140299L);
+        comtogtcoOrder.setEntryPoint(10140299L);// хардкод
         //добавляем запрещенные акции
         /*if (forbidPromo != null) {
             COMTOGTCOFORBIDPROMOT forbidPromoList = new COMTOGTCOFORBIDPROMOT();

@@ -3,6 +3,7 @@ package ru.sportmasterlab.Generate_order.core.api;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 
 import ru.sm.qaa.soap.gen.MarsGate.*;
+import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
 import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
 
 public class MarsGateApi extends CreateOrderBase{
@@ -15,14 +16,15 @@ public class MarsGateApi extends CreateOrderBase{
         tGateOrder.setOrderTypeMnemocode("internal_pickup");
 
         TOrderItemLineList tGateOrderItemList = new TOrderItemLineList();
-        for (int i = 0; i<request.itemList().size(); i++){
-            for (int j = 0; j < Integer.parseInt(request.itemList().get(i).qtyOrdered()); j++){
+
+        for (ItemList item :request.itemList()){
+            for (int j = 0; j < Integer.parseInt(item.qtyOrdered()); j++){
                 TOrderItemLine tGateOrderItem = new TOrderItemLine();
-                tGateOrderItem.setPrice(Double.parseDouble(request.itemList().get(i).price()));
-                tGateOrderItem.setIdWare(Long.valueOf(request.itemList().get(i).idWare()));
+                tGateOrderItem.setPrice(Double.parseDouble(item.price()));
+                tGateOrderItem.setIdWare(Long.valueOf(item.idWare()));
                 tGateOrderItem.setLineMark(lineMark++);
                 tGateOrderItem.setIsService((byte) 0);
-                tGateOrderItemList.getOrderItem().add(i, tGateOrderItem);
+                tGateOrderItemList.getOrderItem().add(tGateOrderItem);
             }
         }
 

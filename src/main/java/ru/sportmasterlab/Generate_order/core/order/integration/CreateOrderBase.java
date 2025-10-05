@@ -1,4 +1,4 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.integration;
 
 import com.sun.xml.ws.transport.http.client.HttpTransportPipe;
 import ru.sm.qaa.soap.gen.ComProCsm.ComCsmApiPortType;
@@ -7,12 +7,12 @@ import ru.sm.qaa.soap.gen.ComProOGate.ComProOGateApiPortType;
 import ru.sm.qaa.soap.gen.ComProPGate.ComPgateApiPortType;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiEndpointService;
 import ru.sm.qaa.soap.gen.MarsGate.MarsGateApiPortType;
-import ru.sportmasterlab.Generate_order.core.directory.Directory;
-import ru.sportmasterlab.Generate_order.model.dataBase.CurrencyDto;
-import ru.sportmasterlab.Generate_order.model.dataBase.PaymentsDto;
+import ru.sportmasterlab.Generate_order.core.admin.directory.Directory;
+import ru.sportmasterlab.Generate_order.model.admin.CurrencyDto;
+import ru.sportmasterlab.Generate_order.model.admin.PaymentsDto;
 import ru.sportmasterlab.Generate_order.model.order.created.DiscountList;
 import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -57,7 +57,7 @@ public class CreateOrderBase {
         }
     }
 
-    protected static Long getPaymentTypeId(OrderRequest request){
+    protected static Long getPaymentTypeId(OrderRequestDto request){
         Long paymentTypeId= null;
         for (PaymentsDto payment : Directory.paymentsDirectory){
             if(request.money().paymentType().equals(payment.code())){
@@ -67,7 +67,7 @@ public class CreateOrderBase {
         return paymentTypeId;
     }
 
-    protected static String getCurrencyCode(OrderRequest request){
+    protected static String getCurrencyCode(OrderRequestDto request){
         String currencyCode = null;
         for (CurrencyDto currency : Directory.currencyDirectory){
             if(request.money().currencyCode().equals(currency.currencyType())){
@@ -77,7 +77,7 @@ public class CreateOrderBase {
         return currencyCode;
     }
 
-    protected static BigDecimal getSumToPayWare(OrderRequest request){
+    protected static BigDecimal getSumToPayWare(OrderRequestDto request){
         BigDecimal sumToPayWare = BigDecimal.valueOf(0);
         for(ItemList item: request.itemList()){
             BigDecimal sumDiscountWare = BigDecimal.valueOf(0);
@@ -94,7 +94,7 @@ public class CreateOrderBase {
         return sumToPayWare;
     }
 
-    protected static BigDecimal getDiscountTotal(OrderRequest request){
+    protected static BigDecimal getDiscountTotal(OrderRequestDto request){
         BigDecimal sumDiscount = BigDecimal.valueOf(0);
         for(ItemList item: request.itemList()){
             if (item.discountList()!= null){
@@ -120,7 +120,7 @@ public class CreateOrderBase {
         return sumDiscountWare;
     }
 
-    protected static Long getCreditProductId(OrderRequest request){
+    protected static Long getCreditProductId(OrderRequestDto request){
         Long creditProductId = null;
         for (PaymentsDto payment : Directory.paymentsDirectory){
             if(request.money().paymentType().equals(payment.code()) && payment.idCreditProduct()!=null){

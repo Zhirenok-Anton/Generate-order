@@ -1,4 +1,4 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.db;
 
 import org.jdbi.v3.core.Jdbi;
 

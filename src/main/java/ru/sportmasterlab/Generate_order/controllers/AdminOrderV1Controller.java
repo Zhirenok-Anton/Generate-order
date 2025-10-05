@@ -2,15 +2,12 @@ package ru.sportmasterlab.Generate_order.controllers;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.sportmasterlab.Generate_order.model.dataBase.CurrencyDto;
-import ru.sportmasterlab.Generate_order.model.dataBase.PaymentsDto;
+import ru.sportmasterlab.Generate_order.model.admin.ResponseCurrencyDto;
+import ru.sportmasterlab.Generate_order.model.admin.ResponsePaymentsDto;
 import ru.sportmasterlab.Generate_order.services.AdminService;
 
-import java.util.ArrayList;
-import java.util.Optional;
-
 @RestController
-@RequestMapping(value = "/admin/api/v1/directory")
+@RequestMapping(value = "test/api/v1/admin/directory")
 public class AdminOrderV1Controller {
 
     AdminService adminService;
@@ -21,13 +18,13 @@ public class AdminOrderV1Controller {
 
     @GetMapping(value = "/payments")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<ArrayList<PaymentsDto>> getDirectoryPayments(){
+    public ResponsePaymentsDto getDirectoryPayments(){
         return adminService.updateDirectoryPayments();
     }
 
     @GetMapping(value = "/currency")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<ArrayList<CurrencyDto>> getDirectoryCurrency(){
+    public ResponseCurrencyDto getDirectoryCurrency(){
         return adminService.updateDirectoryCurrency();
     }
 }

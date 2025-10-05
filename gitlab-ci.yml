@@ -1,0 +1,162 @@
+default:
+  tags: [docker]
+  image:
+    name: $SERVICE_IMAGE
+    entrypoint: ["/usr/local/bin/kubelogin.sh"]
+
+stages:
+  - lint
+  - environment
+  - build
+  - build_n_push
+  - deploy_test
+
+variables:
+  GIT_STRATEGY: clone
+  MAVEN_IMAGE: artifactory.app.local/publicregistry/maven-oracle-jdk8:3.6.3
+  MAVEN_CLI_OPTS: "-s .m2/settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  SERVICE_IMAGE: artifactory.app.local/kube-public/antools:11.6.24
+  K8S_CI_TOKEN: $K8S_DEV_CLUSTER_NAME
+  CHART_APP_NAME: "rgenerate-orde"
+  CHART: "helm-virtual/universal"
+  CHART_VERSION: 2.4.0
+  DIR_DOCKERFILES: "deploy/docker"
+  DOCKER_IMAGE: ${CR_REGISTRY_URL}
+  REVIEW_DOMAIN: k8s-cm-dev.gksm.local
+  K8S_API_URL: https://api.k8s-cm-dev.gksm.local
+  K8S_CLUSTER_NAME: k8s-cm-dev.gksm.local
+
+#  DEPLOY_EXTRA_ARGS: >-
+#    --set image=$DOCKER_IMAGE/ferma/v${RELEASE_VERSION}
+#    --set imageTag=$CI_COMMIT_SHORT_SHA
+#    --set fullnameOverride=$CHART_APP_NAME
+
+.env_test:
+  variables:
+    RELEASE_VERSION: "0.0.1"
+    DEPLOY_NS_NAME: "pkkt-cm-tst-ru2"
+    K8S_CI_TOKEN: $K8S_API_TOKEN_KASSA_CM_TST_RU2 # возможны проблемы
+    CHART_VALUES: "-f deploy/helm/values_test.yaml"
+
+.env_int:
+  variables:
+    DEPLOY_NS_NAME: $DEPLOY_TST_NS_NAME
+    K8S_CI_TOKEN: $K8S_API_TOKEN_PKKT_CM_INT_RU2
+    CHART_VALUES: "-f deploy/helm/values_int.yaml"
+
+
+### Lint
+lint:docker:
+  stage: lint
+  image:
+    name: hadolint/hadolint:latest-alpine
+  rules:
+    - changes:
+      - $DIR_DOCKERFILES/*
+  script:
+    - find $DIR_DOCKERFILES -name "Dockerfile*" -exec hadolint '{}' \;
+  interruptible: true
+
+### Helm Lint
+.helm_lint:
+  stage: lint
+  image:
+    name: $SERVICE_IMAGE
+  script:
+    - helm repo update
+    - helm template $CHART_APP_NAME $CHART $CHART_VALUES $DEPLOY_EXTRA_ARGS --version $CHART_VERSION --debug
+  rules:
+    - changes:
+      - deploy/helm/*
+  interruptible: true
+
+helm:lint:test:
+  extends: [.helm_lint, .env_test]
+
+
+
+### mvn build
+mvn:build:
+  stage: build
+  image: $MAVEN_IMAGE
+  script:
+    - mvn $MAVEN_CLI_OPTS clean package
+  cache:
+    key: "${CI_COMMIT_REF_SLUG}-ferma"
+    paths:
+      - target/
+      - .m2/repository/
+  artifacts:
+    paths:
+      - ./target/
+      - ./target/site/jacoco
+      - ./**/target/surefire-reports/TEST-*.xml
+    expire_in: 1 week
+    when: always
+    reports:
+      junit:
+        - ./**/target/surefire-reports/TEST-*.xml
+  except:
+    refs: [tags, schedules]
+  interruptible: true
+
+### SonarQube
+sonarqube:
+  stage: sonar
+  image:
+    name: $SONAR_MAVEN_IMAGE
+  variables:
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  script:
+    - echo "$CI_MERGE_REQUEST_PROJECT_URL"
+    - mvn sonar:sonar $SONARQUBE_PARAMS
+  dependencies:
+    - mvn:build
+  allow_failure: true
+  interruptible: true
+
+### Docker build
+.docker_build:
+  stage: build_n_push
+  image:
+    name: docker:18.09.9
+  before_script:
+    - test -z "$ARTIFACTORY_LOGIN" -o -z "$ARTIFACTORY_PASSWORD" && exit 1 # потом прописать в git
+    - docker login -u "$ARTIFACTORY_LOGIN" -p "$ARTIFACTORY_PASSWORD" $DOCKER_IMAGE
+    - FULL_IMAGE_NAME=$DOCKER_IMAGE/generate-order/v${RELEASE_VERSION}:$CI_COMMIT_SHORT_SHA
+    - echo $FULL_IMAGE_NAME
+  script:
+    - docker build
+      -f $DOCKERFILE
+      --tag $FULL_IMAGE_NAME .
+    - docker push $FULL_IMAGE_NAME
+  needs:
+    - job: mvn:build
+  interruptible: true
+  when: manual
+
+docker:build:
+  extends: [.docker_build]
+  variables:
+    DOCKERFILE: $DIR_DOCKERFILES/Dockerfile
+
+### K8S deploy template
+.deploy:
+  script:
+    - echo $CHART
+    - echo $CHART_VERSION
+    - echo $CHART_APP_NAME
+    - echo $CHART_VALUES
+    - echo DEPLOY_EXTRA_ARGS
+    - helm repo update
+    - helm upgrade --install $CHART_APP_NAME $CHART
+        --version $CHART_VERSION
+        --namespace ${DEPLOY_NS_NAME}
+        --atomic --cleanup-on-fail --timeout 360s --debug $CHART_VALUES $DEPLOY_EXTRA_ARGS
+
+### K8S Deploy
+deploy:test:
+  stage: deploy_test
+  extends: [.env_test, .deploy]
+  when: manual

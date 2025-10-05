@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
-import ru.sportmasterlab.Generate_order.model.ErrorInfo;
+import ru.sportmasterlab.Generate_order.model.ErrorInfoDto;
 
 @ControllerAdvice
 public class ErrorController {
@@ -14,8 +14,8 @@ public class ErrorController {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public ErrorInfo processException(Exception e) {
+    public ErrorInfoDto processException(Exception e) {
         logger.error("Unexpected error", e);
-        return new ErrorInfo(e.getMessage());
+        return new ErrorInfoDto(e.getMessage());
     }
 }

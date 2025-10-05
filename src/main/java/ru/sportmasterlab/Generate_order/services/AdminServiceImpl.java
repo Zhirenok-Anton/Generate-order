@@ -2,13 +2,10 @@ package ru.sportmasterlab.Generate_order.services;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
-import ru.sportmasterlab.Generate_order.core.directory.Directory;
-import ru.sportmasterlab.Generate_order.model.dataBase.CurrencyDto;
-import ru.sportmasterlab.Generate_order.model.dataBase.PaymentsDto;
+import ru.sportmasterlab.Generate_order.core.admin.directory.Directory;
+import ru.sportmasterlab.Generate_order.model.admin.ResponseCurrencyDto;
+import ru.sportmasterlab.Generate_order.model.admin.ResponsePaymentsDto;
 import ru.sportmasterlab.Generate_order.repository.AdminRepositoryImpl;
-
-import java.util.ArrayList;
-import java.util.Optional;
 
 @Primary
 @Service
@@ -21,16 +18,16 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public Optional<ArrayList<PaymentsDto>> updateDirectoryPayments() {
-        Optional<ArrayList<PaymentsDto>> listPayments = adminRepository.updatePayments();
-        Directory.updatePaymentsDirectory(listPayments);
-        return listPayments;
+    public ResponsePaymentsDto updateDirectoryPayments() {
+        ResponsePaymentsDto responsePaymentsDto = adminRepository.updatePayments();
+        Directory.updatePaymentsDirectory(responsePaymentsDto.payments());
+        return responsePaymentsDto;
     }
 
     @Override
-    public Optional<ArrayList<CurrencyDto>> updateDirectoryCurrency() {
-        Optional<ArrayList<CurrencyDto>> listCurrency = adminRepository.updateCurrency();
-        Directory.updateCurrencyDirectory(listCurrency);
-        return listCurrency;
+    public ResponseCurrencyDto updateDirectoryCurrency() {
+        ResponseCurrencyDto responseCurrencyDto = adminRepository.updateCurrency();
+        Directory.updateCurrencyDirectory(responseCurrencyDto.currency());
+        return responseCurrencyDto;
     }
 }

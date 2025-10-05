@@ -4,15 +4,15 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
-import ru.sportmasterlab.Generate_order.core.api.ComProOGateApi;
-import ru.sportmasterlab.Generate_order.core.api.MarsGateApi;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
-import ru.sportmasterlab.Generate_order.model.order.OrderDto;
+import ru.sportmasterlab.Generate_order.core.order.integration.ComProOGateApi;
+import ru.sportmasterlab.Generate_order.core.order.integration.MarsGateApi;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
+import ru.sportmasterlab.Generate_order.model.order.OrderResponseDto;
 import ru.sportmasterlab.Generate_order.repository.OrderRepository;
 
-import static ru.sportmasterlab.Generate_order.core.api.ComPgateApi.*;
-import static ru.sportmasterlab.Generate_order.core.api.ComLiteApi.*;
-import static ru.sportmasterlab.Generate_order.core.api.ComCsmApi.*;
+import static ru.sportmasterlab.Generate_order.core.order.integration.ComPgateApi.*;
+import static ru.sportmasterlab.Generate_order.core.order.integration.ComLiteApi.*;
+import static ru.sportmasterlab.Generate_order.core.order.integration.ComCsmApi.*;
 
 @Primary
 @Service
@@ -25,13 +25,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDto getorder(Long orderCode) {
+    public OrderResponseDto getorder(Long orderCode) {
         return orderRepository.getOrderByCode(orderCode)
                 .orElseThrow(() -> new OrderNotFoundException(orderCode));
     }
 
     @Override
-    public Long createOrder(OrderRequest request) {
+    public Long createOrder(OrderRequestDto request) {
         CreateOrderResponse createOrderComProResponse= null;
         SubmitByLinesResponse submitResponse = null;
         Long orderCode = 0L;
@@ -43,7 +43,7 @@ public class OrderServiceImpl implements OrderService {
         //                           OrderNum - возможно это можно генерировать  самостоятельно (пример 123456-123456)
         submitResponse = MarsGateApi.createOrderInMars(request);
 
-        //вызов ComPro - для создания заказа
+        //создания заказа
         createOrderComProResponse = ComProOGateApi.getCreateOrderComProResponse(request,submitResponse);
         orderCode = createOrderComProResponse.getOrderCode();
 
@@ -60,7 +60,7 @@ public class OrderServiceImpl implements OrderService {
                 orderCode,
                 submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum(),
                 authCode,
-                "YES", "YES", "YES", "NO", request.toString());
+                request.toString());
         return orderCode;
     }
 }

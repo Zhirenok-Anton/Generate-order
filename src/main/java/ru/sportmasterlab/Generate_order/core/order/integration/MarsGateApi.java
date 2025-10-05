@@ -1,14 +1,14 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.integration;
 
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 
 import ru.sm.qaa.soap.gen.MarsGate.*;
 import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
 
 public class MarsGateApi extends CreateOrderBase{
 
-    public static SubmitByLinesResponse createOrderInMars(OrderRequest request) {
+    public static SubmitByLinesResponse createOrderInMars(OrderRequestDto request) {
         int lineMark = 1;
         SubmitByLinesRequest submitRequest = new SubmitByLinesRequest();
         TOrder tGateOrder = new TOrder();

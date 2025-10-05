@@ -1,0 +1,19 @@
+{
+    "currency":[
+        {
+            "id": 1,
+            "currencyCode": 643,
+            "currencyType": "RUB"
+        },
+        {
+            "id": 2,
+            "currencyCode": 0,
+            "currencyType": "BYN"
+        },
+        {
+            "id": 3,
+            "currencyCode": 0,
+            "currencyType": "KZT"
+        }
+    ]
+}

@@ -1,0 +1,76 @@
+{
+  "payments":[
+      {
+        "id": 2,
+        "name": "Оплата в магазине",
+        "code": "IN_SHOP",
+        "idPaymentType": "10210299",
+        "idCreditProduct": null,
+        "isActual": true
+      },
+      {
+        "id": 3,
+        "name": "Оплата банковской картой",
+        "code": "BANK_CARD",
+        "idPaymentType": "10400299",
+        "idCreditProduct": null,
+        "isActual": true
+      },
+      {
+        "id": 4,
+        "name": "сплит",
+        "code": "SPLIT",
+        "idPaymentType": "11200299",
+        "idCreditProduct": "12410299",
+        "isActual": true
+      },
+      {
+        "id": 8,
+        "name": "Сплит монобренд",
+        "code": "SPLIT_MONOBREND",
+        "idPaymentType": "11200299",
+        "idCreditProduct": "13230299",
+        "isActual": true
+      },
+      {
+        "id": 9,
+        "name": "Кредит тинкофф",
+        "code": "CREDIT_TINCOFF",
+        "idPaymentType": "10800299",
+        "idCreditProduct": "11610299",
+        "isActual": true
+      },
+      {
+        "id": 10,
+        "name": "Халва монобренд",
+        "code": "HALVA_MONOBREND",
+        "idPaymentType": "10400299",
+        "idCreditProduct": "10610299",
+        "isActual": true
+      },
+      {
+        "id": 11,
+        "name": "Сбер рассрочка",
+        "code": "SBER",
+        "idPaymentType": "10200299",
+        "idCreditProduct": "10010299",
+        "isActual": true
+      },
+      {
+        "id": 12,
+        "name": "Сбер кредит",
+        "code": "CREDIT_SBER",
+        "idPaymentType": "10150299",
+        "idCreditProduct": "10000299",
+        "isActual": true
+      },
+      {
+        "id": 6,
+        "name": "ПК",
+        "code": "PC",
+        "idPaymentType": "0000000",
+        "idCreditProduct": null,
+        "isActual": false
+      }
+  ]
+}

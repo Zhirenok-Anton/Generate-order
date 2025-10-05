@@ -1,4 +1,4 @@
-package ru.sportmasterlab.Generate_order.model.dataBase;
+package ru.sportmasterlab.Generate_order.model.admin;
 
 public record CurrencyDto(
         Long id,

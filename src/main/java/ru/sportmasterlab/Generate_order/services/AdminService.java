@@ -1,13 +1,10 @@
 package ru.sportmasterlab.Generate_order.services;
 
-import ru.sportmasterlab.Generate_order.model.dataBase.CurrencyDto;
-import ru.sportmasterlab.Generate_order.model.dataBase.PaymentsDto;
-
-import java.util.ArrayList;
-import java.util.Optional;
+import ru.sportmasterlab.Generate_order.model.admin.ResponseCurrencyDto;
+import ru.sportmasterlab.Generate_order.model.admin.ResponsePaymentsDto;
 
 public interface AdminService {
 
-    Optional<ArrayList<PaymentsDto>> updateDirectoryPayments();
-    Optional<ArrayList<CurrencyDto>> updateDirectoryCurrency();
+    ResponsePaymentsDto updateDirectoryPayments();
+    ResponseCurrencyDto updateDirectoryCurrency();
 }

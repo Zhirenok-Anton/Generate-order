@@ -1,9 +1,10 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.integration;
 
 import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticRequest;
 import ru.sm.qaa.soap.gen.ComProCsm.GetLogisticResponse;
 import ru.sm.qaa.soap.gen.ComProCsm.LILogisticDocList;
 import ru.sm.qaa.soap.gen.ComProCsm.LILogisticInfo;
+import ru.sportmasterlab.Generate_order.core.order.db.OracleDBCompro;
 
 import java.math.BigDecimal;
 

@@ -1,23 +1,23 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.integration;
 
 import ru.sm.qaa.soap.gen.ComProOGate.*;
 import ru.sm.qaa.soap.gen.MarsGate.SubmitByLinesResponse;
 import ru.sportmasterlab.Generate_order.model.order.created.DiscountList;
 import ru.sportmasterlab.Generate_order.model.order.created.ItemList;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
 
 import java.math.BigDecimal;
 
 public class ComProOGateApi extends CreateOrderBase {
 
-    public static CreateOrderResponse getCreateOrderComProResponse(OrderRequest request, SubmitByLinesResponse submitResponse) {
+    public static CreateOrderResponse getCreateOrderComProResponse(OrderRequestDto request, SubmitByLinesResponse submitResponse) {
         setOrderNum(submitResponse.getCalculations().getCalcSubmit().getFirst().getOrderNum());
         CreateOrderRequest createOrderRequestComPro =
                 createOrderRequest(request,submitResponse);
         return comProOGateApiPortType.createOrder(createOrderRequestComPro);
     }
 
-    private static CreateOrderRequest createOrderRequest(OrderRequest request, SubmitByLinesResponse submitResponse) {
+    private static CreateOrderRequest createOrderRequest(OrderRequestDto request, SubmitByLinesResponse submitResponse) {
         setTodayDate();
 
         CreateOrderRequest createOrderRequest = new CreateOrderRequest();
@@ -61,6 +61,7 @@ public class ComProOGateApi extends CreateOrderBase {
         COMTOGTCOCONTACTPERSON comtogtcocontactperson = new COMTOGTCOCONTACTPERSON();
         comtogtcocontactperson.setName("qa");//хардкод
         comtogtcocontactperson.setPhone("79998887766");//хардкод
+        //comtogtcocontactperson.setPhone("89890404040");//хардкод
         comtogtcocontactperson.setEmail("test@test.ru");//хардкод
         comtogtcocontactperson.setPhoneConfirmed(true);//хардкод
         comtogtcocontactperson.setDoNotDisturb(true);//хардкод

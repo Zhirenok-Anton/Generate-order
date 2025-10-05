@@ -1,8 +1,8 @@
-package ru.sportmasterlab.Generate_order.core.api;
+package ru.sportmasterlab.Generate_order.core.order.integration;
 
 import ru.sm.qaa.soap.gen.ComProOGate.CreateOrderResponse;
 import ru.sm.qaa.soap.gen.ComProPGate.*;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class ComPgateApi extends CreateOrderBase {
 
-    public static CreatePaymentResponse getCreatePaymentResponse(OrderRequest request, CreateOrderResponse createOrderResponse) {
+    public static CreatePaymentResponse getCreatePaymentResponse(OrderRequestDto request, CreateOrderResponse createOrderResponse) {
         CreatePaymentRequest createPaymentRequest = null;
 
         if(!request.money().paymentType().equals("IN_SHOP")){
@@ -21,7 +21,7 @@ public class ComPgateApi extends CreateOrderBase {
         return comPgateApiPortType.createPayment(createPaymentRequest);
     }
 
-     private static CreatePaymentRequest сreatePaymentRequest(OrderRequest request, CreateOrderResponse createOrderResponse) {
+     private static CreatePaymentRequest сreatePaymentRequest(OrderRequestDto request, CreateOrderResponse createOrderResponse) {
         CreatePaymentRequest createPaymentRequest = new CreatePaymentRequest();
         createPaymentRequest.setEntryPoint(BigDecimal.valueOf(10140299));
         createPaymentRequest.setSessionId("23545-23434-" + getRandomNumber(7));
@@ -41,7 +41,7 @@ public class ComPgateApi extends CreateOrderBase {
         return createPaymentRequest;
     }
 
-    private static CPPayment getCPPayment (OrderRequest request){
+    private static CPPayment getCPPayment (OrderRequestDto request){
         CPPayment cpPayment = null;
         if(request.money().paymentType().equals("BANK_CARD")){
             cpPayment = setBankCardPayment(request);
@@ -56,7 +56,7 @@ public class ComPgateApi extends CreateOrderBase {
     }
 
     //Создание платежа ЭПК
-    private static CPPayment setCpGiftCardPayment(OrderRequest request) {
+    private static CPPayment setCpGiftCardPayment(OrderRequestDto request) {
         CPPayment cpPayment = setCPPayment(request);
         CPGiftCard cpGiftCard = new CPGiftCard();
         cpGiftCard.setCardNum(new BigDecimal(getEPCNumber()));
@@ -66,14 +66,14 @@ public class ComPgateApi extends CreateOrderBase {
     }
 
     //создание данных для платежа банковской картой
-    private static CPPayment setBankCardPayment(OrderRequest request) {
+    private static CPPayment setBankCardPayment(OrderRequestDto request) {
         CPPayment cpPayment = setCPPayment(request);
         cpPayment.setBankCard(setCPBankCard());
         return cpPayment;
     }
 
    // Создание платежа кредитной картой
-    private static CPPayment setCreditPayment(OrderRequest request) {
+    private static CPPayment setCreditPayment(OrderRequestDto request) {
         CPPayment cpPayment = setCPPayment(request);
         cpPayment.setBankCard(setCPBankCard());
         cpPayment.setCreditProductId(BigDecimal.valueOf(getCreditProductId(request)));
@@ -89,7 +89,7 @@ public class ComPgateApi extends CreateOrderBase {
         return cpBankCard;
     }
 
-    private static CPPayment setCPPayment (OrderRequest request){
+    private static CPPayment setCPPayment (OrderRequestDto request){
         CPPayment cpPayment = new CPPayment();
         cpPayment.setPaymentNum(paymentGateIdFrom("29E08ABG3269401JD", 15));
         cpPayment.setPaymentGateId(paymentGateIdFrom("29E08ABG3269401JD", 15));

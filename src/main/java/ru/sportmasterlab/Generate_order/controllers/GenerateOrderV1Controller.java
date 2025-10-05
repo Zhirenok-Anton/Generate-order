@@ -3,12 +3,12 @@ package ru.sportmasterlab.Generate_order.controllers;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.sportmasterlab.Generate_order.model.order.OrderDto;
-import ru.sportmasterlab.Generate_order.model.order.created.OrderRequest;
+import ru.sportmasterlab.Generate_order.model.order.OrderResponseDto;
+import ru.sportmasterlab.Generate_order.model.order.created.OrderRequestDto;
 import ru.sportmasterlab.Generate_order.services.OrderService;
 
 @RestController
-@RequestMapping(value = "/generate/order/api/v1")
+@RequestMapping(value = "test/api/v1/order")
 public class GenerateOrderV1Controller {
     private final OrderService orderService;
 
@@ -18,13 +18,13 @@ public class GenerateOrderV1Controller {
 
     @GetMapping(value = "/{orderId:\\d+}")
     @ResponseStatus(HttpStatus.OK)
-    public OrderDto getOrder(@PathVariable Long orderId){
+    public OrderResponseDto getOrder(@PathVariable Long orderId){
         return orderService.getorder(orderId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto createOrder(@Valid @RequestBody OrderRequest request) {
+    public OrderResponseDto createOrder(@Valid @RequestBody OrderRequestDto request) {
         Long orderCode = orderService.createOrder(request);
         return orderService.getorder(orderCode);
     }

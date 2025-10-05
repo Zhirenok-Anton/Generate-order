@@ -2,7 +2,7 @@ package ru.sportmasterlab.Generate_order.model.order.created;
 
 import java.util.ArrayList;
 
-public record OrderRequest(
+public record OrderRequestDto(
         String shopNum,
         Money money,
         ArrayList<CuponsList> cupons,

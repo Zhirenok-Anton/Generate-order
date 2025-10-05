@@ -1,0 +1,128 @@
+---
+components:
+  ingress: true
+  service: true
+  deployment: true
+
+appLabelName: generate-order
+
+replicas: 1
+
+imagePullSecrets: registry-cred
+
+strategy:
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 50%
+
+podSecurityContext: {}
+
+securityContext: {}
+
+annotations: {}
+
+podAnnotations: {}
+
+rollme: true
+
+services:
+  - name: generate-order
+    port: 8080
+    portName: http
+
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      keepalive_timeout 300s;
+      client_body_timeout 300s;
+  hosts:
+    - host: generate-order.kassa-cm-tst-ru2.k8s-cm-dev.gksm.local #поменять если будет не на ресурсах MS
+      paths:
+        - path: /
+          backend:
+            serviceName: generate-order
+            servicePort: 8080
+  tls: []
+
+pdb:
+  matchLabel: generate-order
+  minAvailable: 50%
+
+serviceMonitors:
+  - name: "generate-order-metrics"
+    enabled: true
+    portName: "http"
+    portScheme: "http"
+    scrapePath: /actuator/prometheus
+    scrapeInterval: 30s
+    honorLabels: false
+
+k8sConfig:
+  clusterName: ""
+  apiUrl: ""
+  ciToken: ""
+
+configmaps:
+  - name: generate-order-map
+    data:
+      _JAVA_OPTIONS: >-
+        -XX:MaxRAMPercentage=75.0
+        -XX:+AlwaysPreTouch
+        -XX:InitialRAMPercentage=75.0
+        -XX:+AggressiveOpts
+        -XX:+UseG1GC
+        -XX:MaxGCPauseMillis=100
+        -XX:+UnlockExperimentalVMOptions
+        -XX:+OptimizeStringConcat
+
+envFrom:
+- configMapRef:
+    name: generate-order-map
+- secretRef:
+    name: vault-secret-common
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    scheme: HTTP
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 30
+  timeoutSeconds: 240
+  successThreshold: 2
+  failureThreshold: 4
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    scheme: HTTP
+    port: 8080
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  timeoutSeconds: 2
+  successThreshold: 1
+  failureThreshold: 3
+
+resources:
+  limits:
+    cpu: 1.5
+    memory: 2Gi
+  requests:
+    cpu: 0.5
+    memory: 1Gi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+lifecyclesHooks:
+  preStop:
+    exec:
+      command: ["sh","-c", "sleep 15"]
+

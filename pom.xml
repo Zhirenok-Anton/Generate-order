@@ -118,6 +118,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>generate-order</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -220,124 +221,6 @@
 								<wsdlUrl>http://compro-etalon.web.local/compro-ms/ComMSApiPort?wsdl</wsdlUrl>
 							</wsdlUrls>
 							<packageName>ru.sm.qaa.soap.gen.ComProMs</packageName>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>6.0.1</version>
-				<executions>
-					<execution>
-						<id>ms-order-api</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<inputSpec>${project.basedir}/spec/order-openapi-latest.yml
-							</inputSpec><!-- указываем где лежит файл спецификации -->
-							<generatorName>java
-							</generatorName><!-- язык, который будет использоваться д/ генерации классов -->
-							<apiPackage>${project.groupId}.module-sales.generated.order.api
-							</apiPackage><!-- имя пакета для классов апи-клиентов -->
-							<modelPackage>${project.groupId}.module-sales.generated.order.model
-							</modelPackage><!-- имя пакета для классов-моделей (структур данных) -->
-							<invokerPackage>${project.groupId}.module-sales.generated.order.util
-							</invokerPackage><!-- имя пакета для вспомогательных классов -->
-							<generateModels>true</generateModels>
-							<generateApis>true</generateApis>
-							<library>rest-assured</library> <!-- используемый http-клиент -->
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<skipValidateSpec>true</skipValidateSpec>
-							<skipIfSpecIsUnchanged>false</skipIfSpecIsUnchanged>
-							<configOptions>
-								<dateLibrary>java17</dateLibrary>
-								<java17>true</java17>
-								<reactive>false</reactive>
-								<interfaceOnly>false</interfaceOnly>
-								<hideGenerationTimestamp>true</hideGenerationTimestamp>
-								<serializableModel>true</serializableModel>
-								<serializationLibrary>jackson</serializationLibrary>
-								<useTags>true</useTags>
-								<delegatePattern>true</delegatePattern>
-							</configOptions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ms-basket-api</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<inputSpec>${project.basedir}/spec/basket-openapi.yml
-							</inputSpec><!-- указываем где лежит файл спецификации -->
-							<generatorName>java
-							</generatorName><!-- язык, который будет использоваться д/ генерации классов -->
-							<apiPackage>${project.groupId}.module-sales.generated.basket.api
-							</apiPackage><!-- имя пакета для классов апи-клиентов -->
-							<modelPackage>${project.groupId}.module-sales.generated.basket.model
-							</modelPackage><!-- имя пакета для классов-моделей (структур данных) -->
-							<invokerPackage>${project.groupId}.module-sales.generated.basket.util
-							</invokerPackage><!-- имя пакета для вспомогательных классов -->
-							<generateModels>true</generateModels>
-							<generateApis>true</generateApis>
-							<library>rest-assured</library> <!-- используемый http-клиент -->
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<skipValidateSpec>true</skipValidateSpec>
-							<skipIfSpecIsUnchanged>false</skipIfSpecIsUnchanged>
-							<configOptions>
-								<dateLibrary>java17</dateLibrary>
-								<java17>true</java17>
-								<reactive>false</reactive>
-								<interfaceOnly>false</interfaceOnly>
-								<hideGenerationTimestamp>true</hideGenerationTimestamp>
-								<serializableModel>true</serializableModel>
-								<serializationLibrary>jackson</serializationLibrary>
-								<useTags>true</useTags>
-								<delegatePattern>true</delegatePattern>
-							</configOptions>
-						</configuration>
-					</execution>
-					<execution>
-						<id>ms-support-api</id>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<inputSpec>${project.basedir}/spec/support-openapi-latest.yml
-							</inputSpec><!-- указываем где лежит файл спецификации -->
-							<generatorName>java
-							</generatorName><!-- язык, который будет использоваться д/ генерации классов -->
-							<apiPackage>${project.groupId}.module-sales.generated.support.api
-							</apiPackage><!-- имя пакета для классов апи-клиентов -->
-							<modelPackage>${project.groupId}.module-sales.generated.support.model
-							</modelPackage><!-- имя пакета для классов-моделей (структур данных) -->
-							<invokerPackage>${project.groupId}.module-sales.generated.support.util
-							</invokerPackage><!-- имя пакета для вспомогательных классов -->
-							<generateModels>true</generateModels>
-							<generateApis>true</generateApis>
-							<library>rest-assured</library> <!-- используемый http-клиент -->
-							<generateApiTests>false</generateApiTests>
-							<generateModelTests>false</generateModelTests>
-							<skipValidateSpec>true</skipValidateSpec>
-							<skipIfSpecIsUnchanged>false</skipIfSpecIsUnchanged>
-							<configOptions>
-								<dateLibrary>java17</dateLibrary>
-								<java17>true</java17>
-								<reactive>false</reactive>
-								<interfaceOnly>false</interfaceOnly>
-								<hideGenerationTimestamp>true</hideGenerationTimestamp>
-								<serializableModel>true</serializableModel>
-								<serializationLibrary>jackson</serializationLibrary>
-								<useTags>true</useTags>
-								<delegatePattern>true</delegatePattern>
-							</configOptions>
 						</configuration>
 					</execution>
 				</executions>
